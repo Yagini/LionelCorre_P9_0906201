@@ -22,6 +22,14 @@
   border-radius: 5px;
 }
 
+.error__message {
+  display: none;  
+}
+
+.error__message--style {
+  color: red;
+}
+
 label {
   font-style: normal;
   font-weight: 500;

@@ -1,6 +1,7 @@
 import VerticalLayout from './VerticalLayout.js'
 import ErrorPage from "./ErrorPage.js"
 import LoadingPage from "./LoadingPage.js"
+import {formatDate, formatStatus}  from "../app/format.js"
 
 import Actions from './Actions.js'
 
@@ -17,10 +18,16 @@ const row = (bill) => {
       </td>
     </tr>
     `)
-  }
+  } 
 
 const rows = (data) => {
-  return (data && data.length) ? data.map(bill => row(bill)).join("") : ""
+  if (data) {
+    const sortedData = data.sort((a, b) => new Date(b.date) - new Date(a.date)); 
+    return (data && data.length) ? sortedData.map(bill => row(bill)).join("") : ""     
+  }
+  else {
+    return;
+  }   
 }
 
 export default ({ data: bills, loading, error }) => {
