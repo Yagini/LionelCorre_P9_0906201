@@ -24,6 +24,7 @@ export default class NewBill {
     const hiddenError = document.getElementById("error__type");
     
     if(extensionType.includes(fileExtension)) {
+      hiddenError.classList.remove("error__message")
       this.firestore.storage
       .ref(`justificatifs/${fileName}`)
       .put(file)
@@ -33,7 +34,7 @@ export default class NewBill {
         this.fileName = fileName;
       });
     } else {
-      hiddenError.classList.remove("error__message")
+      hiddenError.classList.add("error__message")
     }   
   };
 

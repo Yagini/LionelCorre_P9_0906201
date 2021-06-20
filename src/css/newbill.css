@@ -23,11 +23,12 @@
 }
 
 .error__message {
-  display: none;  
+   display: block !important;
 }
 
-.error__message--style {
+#error__type {
   color: red;
+  display: none; 
 }
 
 label {
