@@ -56,6 +56,7 @@ export default class {
             }
           })
           .filter(bill => bill.email === userEmail) 
+          // add sort method for sort date latest to earliest and map with formatDate() to get a good screen
           .sort((doc1 , doc2) => new Date(doc2.date) - new Date(doc1.date))
           .map(doc => ({
             ...doc,
