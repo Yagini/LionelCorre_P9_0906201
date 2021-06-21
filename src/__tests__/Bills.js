@@ -6,8 +6,7 @@ import { localStorageMock } from "../__mocks__/localStorage.js";
 import userEvent from "@testing-library/user-event";
 import Bills from "../containers/Bills.js";
 import { bills } from "../fixtures/bills";
-jest.mock("../app/Firestore.js");
-
+//jest.mock("../app/Firestore.js");
 
 describe("Given I am connected as an employee", () => {
   describe("When Bills page is called", () => {
@@ -18,10 +17,20 @@ describe("Given I am connected as an employee", () => {
   });
   describe("When I am on Bills Page", () => {
     test("Then bill icon in vertical layout should be highlighted", () => {
-      //expect(screen.getByTestId("icon-window")).toBeTruthy();
+      Object.defineProperty(window, "localStorage", { value: localStorageMock });
+      window.localStorage.setItem(
+        "user",
+        JSON.stringify({
+          type: "Employee",
+        })
+      );
+      document.body.innerHTML = BillsUI({ data: [] });
+      const iconHighlighted = screen.getByTestId("icon-window");
+
+      expect(iconHighlighted).toBeTruthy();
     });
     test("Then bills should be ordered from latest to earliest", () => {
-      const html = BillsUI({ data: bills.sort((a, b) => new Date(b.date) - new Date(a.date))});
+      const html = BillsUI({ data: bills.sort((a, b) => new Date(b.date) - new Date(a.date)) });
       document.body.innerHTML = html;
       const dates = screen
         .getAllByText(/^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i)
@@ -29,6 +38,33 @@ describe("Given I am connected as an employee", () => {
       const antiChrono = (a, b) => (a < b ? 1 : -1);
       const datesSorted = [...dates].sort(antiChrono);
       expect(dates).toEqual(datesSorted);
+    });
+  });
+
+  describe("When I am on Bills and no have bill", () => {
+    test("Then the container are empty", () => {
+      const html = BillsUI({ data: [] });
+      document.body.innerHTML = html;
+      const eye = screen.queryByTestId("icon-eye");
+      expect(eye).toBeNull();
+    });  
+  }); 
+  
+  describe("When I am on Bills page but it is loading", () => {
+    test("Then Loading page should be rendered", () => {
+      const html = BillsUI({ loading: true });
+      document.body.innerHTML = html;
+
+      expect(screen.getAllByText("Loading...")).toBeTruthy();
+    });
+  });
+
+  describe("WHEN I am on Bills page but back-end send an error message", () => {
+    test("THEN Error page should be rendrered", () => {
+      const html = BillsUI({ error: "some error message" });
+      document.body.innerHTML = html;
+
+      expect(screen.getAllByText("Erreur")).toBeTruthy();
     });
   });
 
@@ -105,8 +141,10 @@ describe("Given I am connected as an employee", () => {
       const handleClikIconEye = jest.fn(newbills.handleClikIconEye);
 
       const eye = screen.getAllByTestId("icon-eye")[0];
+      
       eye.addEventListener("click", handleClikIconEye);
       userEvent.click(eye);
+      
       expect(handleClikIconEye).toHaveBeenCalled();
 
       const modale = screen.getByTestId("modaleFile");

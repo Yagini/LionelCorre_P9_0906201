@@ -2,10 +2,11 @@ import { fireEvent, screen } from "@testing-library/dom";
 import NewBillUI from "../views/NewBillUI.js";
 import NewBill from "../containers/NewBill.js";
 import firebase from "../__mocks__/firebase.js";
-import Firestore from "../app/Firestore.js";
 import BillsUI from "../views/BillsUI.js";
 import userEvent from "@testing-library/user-event";
 import { localStorageMock } from "../__mocks__/localStorage.js";
+import { ROUTES } from "../constants/routes"
+
 
 jest.mock("../app/Firestore");
 
@@ -20,32 +21,38 @@ describe("Given I am connected as an employee", () => {
 
   describe("When I am on NewBill Page, I click on submit button", () => {
     test("Then handleSubmit is running", () => {
-      Object.defineProperty(window, "localStorage", { value: localStorageMock });
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+
+      Object.defineProperty(window, "localStorage", {
+        value: localStorageMock,
+      });
+
+      const firestore = null;
+
       window.localStorage.setItem(
         "user",
         JSON.stringify({
           type: "Employee",
         })
-      );
-
-      const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({ pathname });
-      };
+      );    
 
       const html = NewBillUI();
       document.body.innerHTML = html;
+
       const newBill = new NewBill({
         document,
         onNavigate,
-        Firestore,
+        firestore,
         localStorage: window.localStorage,
       });
 
       const handleSubmit = jest.fn(newBill.handleSubmit);
-      const buttonSubmit = document.getElementById("btn-send-bill");
-      buttonSubmit.addEventListener("click", handleSubmit);
-      userEvent.click(buttonSubmit);      
-      expect(handleSubmit).toBeCalled();
+      const billForm = screen.getByTestId("form-new-bill");
+      billForm.addEventListener("submit", handleSubmit);
+      fireEvent.submit(billForm);      
+      expect(handleSubmit).toHaveBeenCalled();
     });
   });
 });
