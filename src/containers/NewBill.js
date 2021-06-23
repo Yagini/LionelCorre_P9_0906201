@@ -15,8 +15,7 @@ export default class NewBill {
     new Logout({ document, localStorage, onNavigate });
   }
   handleChangeFile = (e) => {
-    const file = this.document.querySelector(`input[data-testid="file"]`).files[0];
-    console.log(file);
+    const file = this.document.querySelector(`input[data-testid="file"]`).files[0];    
     const filePath = e.target.value.split(/\\/g);
     const fileName = filePath[filePath.length - 1];
     const extensionType = ["jpg", "jpeg", "png"];
