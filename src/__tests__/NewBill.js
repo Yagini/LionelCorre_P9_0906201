@@ -97,7 +97,7 @@ describe("Given I am connected as an employee", () => {
     });
   });
 
-describe("When I am on NewBill and I choose a good extension type for image ", () => {
+  describe("When I am on NewBill and I choose a good extension type for image ", () => {
     test("Then the error message do not appear", () => {
       Object.defineProperty(window, "localStorage", {
         value: localStorageMock,
@@ -114,7 +114,15 @@ describe("When I am on NewBill and I choose a good extension type for image ", (
         document.body.innerHTML = ROUTES({ pathname });
       };
 
-      const firestore = null;
+      const firestore = {
+        storage: {
+          ref: jest.fn(() => {
+            return {
+              put: jest.fn(() => Promise.resolve({ ref: { getDownloadURL: jest.fn(() => "") } })),
+            };
+          }),
+        },
+      };
 
       const html = NewBillUI();
       document.body.innerHTML = html;
@@ -137,6 +145,7 @@ describe("When I am on NewBill and I choose a good extension type for image ", (
       });
       expect(handleChangeFile).toHaveBeenCalled();
       expect(file.files[0].name).toBe("image.jpg");
+      expect(newBill.fileUrl).toBe("");
     });
   });
 });
@@ -144,6 +153,7 @@ describe("When I am on NewBill and I choose a good extension type for image ", (
 // test intégration
 describe("Given I am a user connected as Employee", () => {
   describe("when I create a new bill", () => {
+    // vérifie que le post vers la database s'effectue correctement
     test("Add bill from mock API POST", async () => {
       const postSpy = jest.spyOn(firebase, "post");
 
@@ -168,8 +178,9 @@ describe("Given I am a user connected as Employee", () => {
       expect(postSpy).toHaveBeenCalledTimes(1);
       expect(bills.data.length).toBe(5);
     });
+    // verifie que la page error est bien affichée si il y a un reject dans l'appel de la database
+    // 404 Ressource non trouvée
     test("Add bill to API and fails with 404 message error", async () => {
-
       firebase.post.mockImplementationOnce(() => Promise.reject(new Error("Erreur 404")));
       const html = BillsUI({ error: "Erreur 404" });
       document.body.innerHTML = html;
@@ -178,6 +189,8 @@ describe("Given I am a user connected as Employee", () => {
 
       expect(message).toBeTruthy();
     });
+    // verifie que la page error est bien affichée si il y a un reject dans l'appel de la database
+    // 500 erreur du serveur
     test("Add bill to API and fails with 500 messager error", async () => {
       firebase.post.mockImplementationOnce(() => Promise.reject(new Error("Erreur 500")));
 

@@ -28,7 +28,7 @@ describe("Given I am connected as an employee", () => {
 
       expect(iconHighlighted).toBeTruthy();
     });
-
+    // Vérifie que les dates sont biens triées 
     test("Then bills should be ordered from latest to earliest", () => {
       const html = BillsUI({ data: bills });
       document.body.innerHTML = html;
@@ -44,6 +44,7 @@ describe("Given I am connected as an employee", () => {
   }); 
 
   // test function handleCLickNewBill
+  // vérifie qu'au clic sur le bouton nouvelle note de frais la fonction handleClikNewBill soit appelée 
   describe("When I click on the New Bill button", () => {
     test("Then I am arrived on bill/new page", () => {
       Object.defineProperty(window, "localStorage", { value: localStorageMock });
@@ -76,11 +77,15 @@ describe("Given I am connected as an employee", () => {
       buttonNewBill.addEventListener("click", handleClickNewBill);
       userEvent.click(buttonNewBill);
 
-      expect(handleClickNewBill).toHaveBeenCalled();           
+      expect(handleClickNewBill).toHaveBeenCalled();
+      
+      expect(screen.getAllByText("Envoyer une note de frais")).toBeTruthy();
     });
   });
 
   // test function handleClickIconEye
+  // vérifie qu'au clic sur l'icone oeil la fonction handleClikNewBill soit appelée et 
+  // vérifie que la modale s'ouvre
   describe("When I click on the eye icon", () => {
     test("Then a Modal should open", () => {      
       Object.defineProperty(window, "localStorage", { value: localStorageMock });
@@ -124,7 +129,8 @@ describe("Given I am connected as an employee", () => {
     });
   });
 
-  //Test views Ui
+  // Test views Ui
+  // Vérifie l'abscence d'icone eye si le tableau de note est vide
   describe("When I am on Bills and no have bill", () => {
     test("Then the container are empty", () => {
       const html = BillsUI({ data: [] });
@@ -136,6 +142,7 @@ describe("Given I am connected as an employee", () => {
     });
   });
 
+  // Vérifie que la page loading est bien rendue
   describe("When I am on Bills page but it is loading", () => {
     test("Then Loading page should be rendered", () => {
       const html = BillsUI({ loading: true });
@@ -145,6 +152,7 @@ describe("Given I am connected as an employee", () => {
     });
   });
 
+  // Vérifie que la page error est bien rendue
   describe("When I am on Bills page but an error message is detected", () => {
     test("Then Error page should be rendrered", () => {
       const html = BillsUI({ error: "some error message" });
@@ -158,6 +166,7 @@ describe("Given I am connected as an employee", () => {
 // test intégration GET Bills
 describe("Given I am a user connected as Employee", () => {
   describe("When I navigate to Bills UI", () => {
+    // vérifie que le get de la database s'effectue correctement
     test("fetches bills from mock API GET", async () => {
       const getSpy = jest.spyOn(firebase, "get");
       const bills = await firebase.get();
@@ -165,6 +174,8 @@ describe("Given I am a user connected as Employee", () => {
       expect(getSpy).toHaveBeenCalledTimes(1);
       expect(bills.data.length).toBe(4);
     });
+    // verifie que la page error est bien affichée si il y a un reject dans l'appel de la database
+    // 404 Ressource non trouvée
     test("fetches bills from an API and fails with 404 message error", async () => {
       firebase.get.mockImplementationOnce(() => Promise.reject(new Error("Erreur 404")));
 
@@ -175,6 +186,8 @@ describe("Given I am a user connected as Employee", () => {
 
       expect(message).toBeTruthy();
     });
+    // verifie que la page error est bien affichée si il y a un reject dans l'appel de la database
+    // 500 erreur du serveur
     test("fetches messages from an Api and fails with 500 message error", async () => {
       firebase.get.mockImplementationOnce(() => Promise.reject(new Error("Erreur 500")));
 
