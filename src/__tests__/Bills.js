@@ -82,8 +82,7 @@ describe("Given I am connected as an employee", () => {
 
   // test function handleClickIconEye
   describe("When I click on the eye icon", () => {
-    test("Then a Modal should open", () => {
-      // define object to take a localStorage
+    test("Then a Modal should open", () => {      
       Object.defineProperty(window, "localStorage", { value: localStorageMock });
       window.localStorage.setItem(
         "user",
@@ -92,29 +91,25 @@ describe("Given I am connected as an employee", () => {
         })
       );
 
-      // template build
       const html = BillsUI({ data: bills });
       document.body.innerHTML = html;
-
-      // initialisation route onNavigate
+      
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname });
       };
-
-      // initialisation firestore à null
+     
       const firestore = null;
-
-      // initialisation newbills with all properties he needs
+      
       const bill = new Bills({
         document,
         onNavigate,
         firestore,
         localStorage: window.localStorage,
       });
-      // emulate function .modal (function Bootstrap) with mock
+      
+      // emulate function bootstrap
       $.fn.modal = jest.fn();
-
-      // emulate function
+      
       const handleClikIconEye = jest.fn(bill.handleClikIconEye);
 
       const eye = screen.getAllByTestId("icon-eye")[0];
